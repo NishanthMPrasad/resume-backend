@@ -1,5 +1,5 @@
 # backend/app.py
-
+import os
 from flask import Flask
 from flask_cors import CORS
 from routes import api_bp  # Import the blueprint
@@ -15,7 +15,9 @@ app.register_blueprint(api_bp, url_prefix='/api')
 if __name__ == '__main__':
     # disable Flask’s built-in reloader so the single server process
     # never gets killed/restarted mid-upload
-    app.run(debug=True, port=5000, use_reloader=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port, use_reloader=False)
+
 
 
 
