@@ -285,7 +285,9 @@ def parse_resume_route():
         return jsonify({"error": "No file selected"}), 400
     try:
         result = parse_resume_file(f)
-        return jsonify(result), 200
+        print("✅ Parsed Result:", result)  # <-- Add this line
+        return jsonify({"parsedData": result}), 200  # <-- Wrap it in "parsedData"
+
     except Exception as e:
         print("Parse error:", e)
         return jsonify({"error": str(e)}), 500
@@ -340,3 +342,4 @@ def generate_pitch_route():
 @api_bp.route("/health", methods=["GET"])
 def health_check():
     return jsonify({"status": "ok"}), 200
+
