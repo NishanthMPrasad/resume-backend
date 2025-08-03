@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: {{ styleOptions.fontFamily or 'Calibri' }};
+            font-size: {{ styleOptions.fontSize or 11 }}pt;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 40px;
+        }
+
+        h1, h2 {
+            color: {{ styleOptions.accentColor or '#34495e' }};
+            margin-bottom: 0;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .profile-img, .logo-img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .center-info {
+            flex: 1;
+            text-align: center;
+        }
+
+        .center-info h1 {
+            margin-bottom: 4px;
+        }
+
+        .contact-line {
+            font-size: 10pt;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        {% if personal.profile_image_b64 %}
+        <div>
+            <img class="profile-img" src="data:image/png;base64,{{ personal.profile_image_b64 }}" alt="Profile">
+        </div>
+        {% endif %}
+
+        <div class="center-info">
+            <h1>{{ personal.name }}</h1>
+            <div class="contact-line">
+                {{ personal.email }} | {{ personal.phone }} | {{ personal.location }}
+                {% if personal.legalStatus and personal.legalStatus != 'Prefer not to say' %}
+                <br>{{ personal.legalStatus }}
+                {% endif %}
+            </div>
+        </div>
+
+        {% if styleOptions.letterhead_image_b64 %}
+        <div>
+            <img class="logo-img" src="data:image/png;base64,{{ styleOptions.letterhead_image_b64 }}" alt="Company Logo">
+        </div>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    {% if summary %}
+    <div class="section">
+        <h2>Summary</h2>
+        <p>{{ summary }}</p>
+    </div>
+    {% endif %}
+
+    {% if education %}
+    <div class="section">
+        <h2>Education</h2>
+        {% for edu in education %}
+        <p>
+            <span class="label">{{ edu.degree }}</span>, {{ edu.institution }}<br>
+            {% if edu.graduationYear %}{{ edu.graduationYear }}{% endif %}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if skills %}
+    <div class="section">
+        <h2>Skills</h2>
+        {% for skill in skills %}
+        <p><span class="label">{{ skill.category }}:</span> {{ skill.skills_list }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if certifications %}
+    <div class="section">
+        <h2>Certifications</h2>
+        {% for cert in certifications %}
+        <p><span class="label">{{ cert.name }}</span><br>{{ cert.issuer }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if experience %}
+    <div class="section">
+        <h2>Experience</h2>
+        {% for exp in experience %}
+        <p>
+            {% if exp.jobTitle %}<span class="label">{{ exp.jobTitle }}</span><br>{% endif %}
+            {% if exp.company or exp.dates %}{{ exp.company }} | {{ exp.dates }}<br>{% endif %}
+            {{ exp.description }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+</html>

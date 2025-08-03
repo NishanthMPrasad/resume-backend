@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    @page {
+      size: A4;
+      margin: 0.75in;
+    }
+    
+    body { 
+      font-family: {{ styleOptions.fontFamily or 'Calibri, sans-serif' }}; 
+      font-size: {{ styleOptions.fontSize or 11 }}pt; 
+      color: #2c3e50; 
+      line-height: 1.4;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .name {
+      font-size: 24pt;
+      font-weight: bold;
+      color: {{ styleOptions.accentColor or '#34495e' }};
+      margin-bottom: 8px;
+    }
+    
+    .contact-info {
+      font-size: {{ (styleOptions.fontSize or 11) - 1 }}pt;
+      margin-bottom: 15px;
+    }
+    
+    .section {
+      margin-bottom: 18px;
+    }
+    
+    .section-title {
+      font-size: 14pt;
+      font-weight: bold;
+      color: {{ styleOptions.accentColor or '#34495e' }};
+      margin-bottom: 8px;
+      padding-bottom: 2px;
+      border-bottom: 1px solid {{ styleOptions.accentColor or '#34495e' }};
+    }
+    
+    .job-title {
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+    
+    .company-info {
+      font-style: italic;
+      margin-bottom: 4px;
+      color: #555;
+    }
+    
+    .description {
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+    
+    .education-item, .skill-item, .cert-item {
+      margin-bottom: 8px;
+    }
+    
+    .degree, .skill-category, .cert-name {
+      font-weight: bold;
+    }
+    
+    .institution, .skills-list {
+      margin-left: 0;
+    }
+    
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo img {
+      height: 60px;
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  {% if includeLogo %}
+  <div class="logo">
+    {% if styleOptions and styleOptions.letterhead_image_b64 %}
+      <img src="data:image/{{ styleOptions.letterhead_image_format or 'png' }};base64,{{ styleOptions.letterhead_image_b64 }}" alt="Company Logo" />
+    {% else %}
+      <img src="PamTen_Logo.png" alt="PamTen Logo" />
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="header">
+    {% if personal and personal.profile_image_b64 %}
+    <div style="margin-bottom: 10px;">
+      <img src="data:image/{{ personal.profile_image_format or 'png' }};base64,{{ personal.profile_image_b64 }}" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid {{ styleOptions.accentColor or '#34495e' }};" />
+    </div>
+    {% endif %}
+    
+    <div class="name">{{ personal.name or '' }}</div>
+    <div class="contact-info">
+      {% set contact_parts = [] %}
+      {% if personal.email %}{{ contact_parts.append(personal.email) or '' }}{% endif %}
+      {% if personal.phone %}{{ contact_parts.append(personal.phone) or '' }}{% endif %}
+      {% if personal.location %}{{ contact_parts.append(personal.location) or '' }}{% endif %}
+      {% if personal.legalStatus and personal.legalStatus != 'Prefer not to say' %}{{ contact_parts.append(personal.legalStatus) or '' }}{% endif %}
+      {{ contact_parts | join(' | ') }}
+    </div>
+  </div>
+
+  {% if summary %}
+  <div class="section">
+    <div class="section-title">Summary</div>
+    <div class="description">{{ summary | safe }}</div>
+  </div>
+  {% endif %}
+
+  {% if experience and experience | selectattr('jobTitle') | list %}
+  <div class="section">
+    <div class="section-title">Experience</div>
+    {% for exp in experience %}
+      {% if exp.jobTitle %}
+      <div class="job-title">{{ exp.jobTitle or '' }}</div>
+      <div class="company-info">{{ exp.company or '' }}{% if exp.company and exp.dates %} | {% endif %}{{ exp.dates or '' }}</div>
+      <div class="description">{{ exp.description | safe or '' }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if education %}
+  <div class="section">
+    <div class="section-title">Education</div>
+    {% for edu in education %}
+    <div class="education-item">
+      <div class="degree">{{ edu.degree or '' }}</div>
+      <div class="institution">{{ edu.institution or '' }}{% if edu.institution and edu.graduationYear %}, {% endif %}{{ edu.graduationYear or '' }}</div>
+      {% if edu.achievements %}
+      <div class="description">{{ edu.achievements | safe }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <div class="section">
+    <div class="section-title">Projects</div>
+    {% for project in projects %}
+    <div class="education-item">
+      <div class="degree">{{ project.title or '' }}</div>
+      {% if project.technologies %}
+      <div class="company-info">Technologies: {{ project.technologies or '' }}</div>
+      {% endif %}
+      {% if project.description %}
+      <div class="description">{{ project.description | safe or '' }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if skills %}
+  <div class="section">
+    <div class="section-title">Skills</div>
+    {% for skill in skills %}
+    <div class="skill-item">
+      <span class="skill-category">{{ skill.category or '' }}:</span> 
+      <span class="skills-list">{{ skill.skills_list or '' }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if certifications %}
+  <div class="section">
+    <div class="section-title">Certifications</div>
+    {% for cert in certifications %}
+    <div class="cert-item">
+      <div class="cert-name">{{ cert.name or '' }}</div>
+      {% if cert.issuer %}
+      <div class="institution">{{ cert.issuer or '' }}{% if cert.issuer and cert.date %}, {% endif %}{{ cert.date or '' }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</body>
+</html>
+
+
+
+
