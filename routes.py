@@ -276,6 +276,7 @@ from gemini_utils import generate_elevator_pitch
 
 api_bp = Blueprint("api", __name__)
 
+
 @api_bp.route("/parse-resume", methods=["POST"])
 def parse_resume_route():
     if "file" not in request.files:
@@ -285,9 +286,15 @@ def parse_resume_route():
         return jsonify({"error": "No file selected"}), 400
     try:
         result = parse_resume_file(f)
-        print("✅ Parsed Result:", result)  # <-- Add this line
-        return jsonify({"parsedData": result}), 200  # <-- Wrap it in "parsedData"
 
+        # Normalize the shape so frontend always gets { parsedData: { ... } }
+        if "parsedData" in result and isinstance(result["parsedData"], dict):
+            to_return = result  # already wrapped
+        else:
+            to_return = {"parsedData": result}
+
+        print("DEBUG parsed resume result:", to_return)  # for logs / debugging
+        return jsonify(to_return), 200
     except Exception as e:
         print("Parse error:", e)
         return jsonify({"error": str(e)}), 500
